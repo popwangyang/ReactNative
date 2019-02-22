@@ -9,6 +9,8 @@ import {
      Dimensions
 } from 'react-native';
 import axois from 'axios'
+import  Video from 'react-native-video'
+
 const { width, height } = Dimensions.get('window');
 
 class ListItemBottom extends React.Component {
@@ -66,7 +68,7 @@ class ListItem2 extends React.Component {
                    <Image
                     style={{width:120, height:80}}
                     source={require("./images/1.jpg")}
-                    resizeMode="contain"
+                    resizeMode="cover"
                    />
                 </View>
              </View>
@@ -74,6 +76,86 @@ class ListItem2 extends React.Component {
           </View>
       )
     }
+
+}
+class ListItem3 extends React.Component {
+     render(){
+     let data = this.props.data;
+        return(
+           <View style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
+              <View>
+                 <Text style={{fontSize:16, color:"black"}}>{data.title}</Text>
+              </View>
+              <View style={{flexDirection:'row', justifyContent:'space-between',marginTop:10}}>
+                   <Image
+                      style={{width:120, height:80}}
+                      source={require("./images/3.jpg")}
+                      resizeMode="contain"
+                    />
+                  <Image
+                    style={{width:120, height:80}}
+                    source={require("./images/4.jpg")}
+                    resizeMode="contain"
+                 />
+                   <Image
+                    resizeMode="contain"
+                    style={{width:120, height:80}}
+                    source={require("./images/5.jpg")}
+                  />
+              </View>
+              <ListItemBottom data={data}/>
+           </View>
+        )
+     }
+}
+class ListItem4 extends React.Component {
+     state = {
+        rate: 1,
+        volume: 1,
+        muted: false,
+        resizeMode: 'contain',
+        duration: 0.0,
+        currentTime: 0.0,
+        paused: true,
+     }
+     render(){
+       return(
+          <View style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
+             <Text style={{fontSize:16, color:"black",marginBottom:10}}>
+                 MU单机版，一人一服，怪是你的，装备都是你的，成龙大哥也在玩啊。
+             </Text>
+             <View style={{height:200, backgroundColor:'black', position:'relative'}}>
+                <Video
+                 source={require("./images/1.mp4")}
+                 onBuffer={this.onBuffer.bind(this)}                // Callback when remote video is buffering
+                 onError={this.videoError}               // Callback when video cannot be loaded
+                 style={styles.backgroundVideo}
+                 onLoad={this.onLoad}//加载媒体并准备播放时调用的回调函数。
+                 onProgress={this.onProgress}//视频播放过程中每个间隔进度单位调用的回调函数
+                 onEnd={this.onEnd}//视频播放结束时的回调函数
+                 paused={this.state.paused}//暂停
+                 resizeMode="cover"
+                 repeat={true}
+                />
+                <View style={{position:'absolute', left:0, top:0, backgroundColor:'red', width:100, height:100,}}/>
+             </View>
+          </View>
+
+       )
+
+     }
+     onBuffer(e){
+        console.log(e, "ppppppsss")
+     }
+     onProgress(e){
+        console.log(e, "lllllll")
+     }
+     onLoad(e){
+        console.log(e, "onLoad")
+     }
+     onEnd(e){
+        console.log(e, 'onEnd')
+     }
 
 }
 class InputComponet extends React.Component {
@@ -171,7 +253,16 @@ export default class ScrollViewPage extends React.Component {
                 flage: false,
                 type:2,
                 id:2
-             }
+             },
+             {
+                 title: "世界上最贵的两个鱼缸，一个建造花费2个亿，一个能蓄水924吨",
+                 author: '中国游戏网',
+                 pinglun: '280评论',
+                 updataTime: '1小时前',
+                 flage: false,
+                 type:3,
+                 id:3
+              },
            ],
            srr:[],
            tabArr:['推荐', '小视频', '视频', '热点', '杭州', '娱乐', '小视频', '视频', '热点', '杭州', '娱乐'],
@@ -189,6 +280,9 @@ export default class ScrollViewPage extends React.Component {
                case 2 :
                   component = <ListItem2 key={item.id} data={item}/>
                  break;
+               case 3:
+                 component = <ListItem3 key={item.id} data={item}/>
+                 break;
             }
             items.push(component);
      })
@@ -204,8 +298,11 @@ export default class ScrollViewPage extends React.Component {
                     pressEvent={this.TabPress.bind(this)}
                   />
               </View>
-              <View style={{flex:1, backgroundColor:"#fff", paddingRight:16, paddingLeft:16}}>
-                <ScrollView>
+              <View style={{flex:1, backgroundColor:"#fff"}}>
+                <ScrollView
+                 style={{paddingRight:16, paddingLeft:16}}
+                >
+                   <ListItem4/>
                     {items}
                  </ScrollView>
               </View>
@@ -254,5 +351,12 @@ const styles = StyleSheet.create({
   },
   selectItem: {
     color: 'red'
-  }
+  },
+  backgroundVideo: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+    },
 });
