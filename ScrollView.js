@@ -6,7 +6,10 @@ import {
      Text,
      TextInput,
      Image,
-     Dimensions
+     Dimensions,
+     TouchableOpacity,
+     Animated,
+     Easing,
 } from 'react-native';
 import axois from 'axios'
 import  Video from 'react-native-video'
@@ -42,15 +45,24 @@ class ListItem1 extends React.Component {
      render(){
      let data = this.props.data;
        return(
-            <View style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
-                <View>
-                    <Text style={{color:'#000000', fontSize:18, fontWeight:'bold'}}>
-                     {data.title}
-                    </Text>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={this.goDetailPage.bind(this)}
+            >
+                <View style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
+                    <View>
+                        <Text style={{color:'#000000', fontSize:18, fontWeight:'bold'}}>
+                         {data.title}
+                        </Text>
+                    </View>
+                    <ListItemBottom data={data}/>
                 </View>
-                <ListItemBottom data={data}/>
-            </View>
+            </TouchableOpacity>
             )
+     }
+     goDetailPage(){
+       this.props.goDetailPage(this.props.data.id)
+
      }
 }
 class ListItem2 extends React.Component {
@@ -82,7 +94,7 @@ class ListItem3 extends React.Component {
      render(){
      let data = this.props.data;
         return(
-           <View style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
+           <View  style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
               <View>
                  <Text style={{fontSize:16, color:"black"}}>{data.title}</Text>
               </View>
@@ -108,6 +120,56 @@ class ListItem3 extends React.Component {
         )
      }
 }
+
+class Icon extends React.Component {
+    render(){
+       return(
+         <View>
+           <Image
+            source={this.props.src}
+            style={this.props.IconStyle}
+           />
+         </View>
+       )
+    }
+}
+
+class Loading extends React.Component {
+    state = {
+      fadeAnim: new Animated.Value(0)
+    }
+
+    componentDidMount() {
+      Animated.loop(Animated.timing(
+        this.state.fadeAnim,
+        {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.circle,
+        }
+      )).start()
+    }
+    render() {
+    let { fadeAnim } = this.state;
+    let rotateZValue = fadeAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg']
+    })
+      return(
+        <Animated.Image                 // 使用专门的可动画化的Image组件
+            source={this.props.src}
+            style={{
+              ...this.props.style,
+              transform: [
+                  { rotateZ: rotateZValue }
+              ],
+            }}
+          >
+          </Animated.Image>
+      )
+    }
+}
+
 class ListItem4 extends React.Component {
      state = {
         rate: 1,
@@ -117,51 +179,106 @@ class ListItem4 extends React.Component {
         duration: 0.0,
         currentTime: 0.0,
         paused: true,
+        flage:0
+     }
+     VideoPlay(){
+             this.setState((preState, props) => ({
+                paused: !preState.paused
+             }))
+             if(this.state.paused) {
+                this.setState({
+                   flage:1
+                })
+             }else{
+                this.setState({
+                    flage:0
+                })
+             }
      }
      render(){
+       let stateIcon = null;
+       let data = this.props.data;
+         if(this.state.flage == 0){
+            stateIcon = (
+                        <Icon
+                            src={require("./images/播放.png")}
+                            IconStyle={{width:40, height:40}}
+                          />)
+             }else if(this.state.flage == 1){
+            stateIcon = (<Loading
+                   src={require("./images/Loading.png")}
+                   style={{width:40, height:40}}
+                 />)
+             }else{
+             stateIcon = (<View></View>)
+             }
        return(
+       <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={this.VideoPlay.bind(this)}>
           <View style={{paddingTop:20, paddingBottom:5, borderBottomWidth:StyleSheet.hairlineWidth*3, borderBottomColor: '#e8e8e8' }}>
              <Text style={{fontSize:16, color:"black",marginBottom:10}}>
                  MU单机版，一人一服，怪是你的，装备都是你的，成龙大哥也在玩啊。
              </Text>
-             <View style={{height:200, backgroundColor:'black', position:'relative'}}>
+             <View style={{height:200,marginBottom:10, backgroundColor: 'black', position:'relative'}}>
                 <Video
                  source={require("./images/1.mp4")}
                  onBuffer={this.onBuffer.bind(this)}                // Callback when remote video is buffering
                  onError={this.videoError}               // Callback when video cannot be loaded
                  style={styles.backgroundVideo}
-                 onLoad={this.onLoad}//加载媒体并准备播放时调用的回调函数。
-                 onProgress={this.onProgress}//视频播放过程中每个间隔进度单位调用的回调函数
+                 onLoad={this.onLoad.bind(this)}//加载媒体并准备播放时调用的回调函数。
+                 onProgress={this.onProgress.bind(this)}//视频播放过程中每个间隔进度单位调用的回调函数
                  onEnd={this.onEnd}//视频播放结束时的回调函数
                  paused={this.state.paused}//暂停
                  resizeMode="cover"
                  repeat={true}
+
                 />
-                <View style={{position:'absolute', left:0, top:0, backgroundColor:'red', width:100, height:100,}}/>
+                <View  style={{height:200, position:'absolute', top: 0, left:0, width:'100%', alignItems:'center', justifyContent:'center', zIndex:10}}>
+                 { stateIcon }
+                </View>
              </View>
+             <ListItemBottom data={data}/>
           </View>
-
+        </TouchableOpacity>
        )
-
      }
      onBuffer(e){
         console.log(e, "ppppppsss")
      }
      onProgress(e){
-        console.log(e, "lllllll")
+      if(!this.state.paused){
+        this.setState({
+          flage:2
+        })
+      }else{
+        this.setState({
+          flage:0
+        })
+      }
+
      }
      onLoad(e){
         console.log(e, "onLoad")
+        if(!this.state.paused){
+          this.setState({
+              flage:1
+           })
+        }
      }
      onEnd(e){
         console.log(e, 'onEnd')
      }
 
+
 }
 class InputComponet extends React.Component {
      render(){
         return(
-        <View style={{height:42,paddingLeft:10,paddingRight:10, borderRadius:4,backgroundColor:'#ffffff',flexDirection:'row',alignItems:'center'}}>
+        <View style={{height:42,paddingLeft:10,
+                      paddingRight:10,
+                      borderRadius:4,backgroundColor:'#ffffff',
+                      flexDirection:'row',alignItems:'center'}}>
               <View>
                 <Image
                  style={{width:30, height:30}}
@@ -263,6 +380,15 @@ export default class ScrollViewPage extends React.Component {
                  type:3,
                  id:3
               },
+             {
+                title: "MU单机版，一人一服，怪是你的，装备都是你的，成龙大哥也在玩啊。",
+                author: '中国游戏网',
+                pinglun: '280评论',
+                updataTime: '1小时前',
+                flage: false,
+                type:4,
+                id:4
+             }
            ],
            srr:[],
            tabArr:['推荐', '小视频', '视频', '热点', '杭州', '娱乐', '小视频', '视频', '热点', '杭州', '娱乐'],
@@ -275,14 +401,17 @@ export default class ScrollViewPage extends React.Component {
             let component = null;
             switch(item.type){
                case 1 :
-                 component = <ListItem1 key={item.id} data={item}/>
+                 component = <ListItem1 key={item.id} data={item} goDetailPage={this.goDetailPage.bind(this)}/>
                  break;
                case 2 :
-                  component = <ListItem2 key={item.id} data={item}/>
+                  component = <ListItem2 key={item.id} data={item} />
                  break;
                case 3:
-                 component = <ListItem3 key={item.id} data={item}/>
+                 component = <ListItem3 key={item.id} data={item} />
                  break;
+               case 4:
+                component = <ListItem4 key={item.id} data={item} />
+                break;
             }
             items.push(component);
      })
@@ -302,7 +431,7 @@ export default class ScrollViewPage extends React.Component {
                 <ScrollView
                  style={{paddingRight:16, paddingLeft:16}}
                 >
-                   <ListItem4/>
+
                     {items}
                  </ScrollView>
               </View>
@@ -314,6 +443,11 @@ export default class ScrollViewPage extends React.Component {
         this.setState({
             tabSelectIndex:index
         })
+     }
+     goDetailPage(id){
+       console.log(id)
+       console.log(this.props)
+
      }
      componentDidMount(){
      console.log("pppppp")

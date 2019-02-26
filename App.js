@@ -8,9 +8,9 @@ import {
     Image,
     StatusBar
 } from 'react-native';
-import { StackNavigator, TabBarBottom, TabNavigator } from "react-navigation";
+import { StackNavigator, TabBarBottom, TabNavigator, withNavigation  } from "react-navigation";
 import ScrollViewPage from './ScrollView.js';
-
+import DetailPage from './DetailPage.js';
 
 class ImageComponent extends React.Component {
    render () {
@@ -181,5 +181,19 @@ const MyApp = TabNavigator(
         lazy: true,
         backBehavior: 'none',
     });
+const RootNavigator = StackNavigator(
+    {
+       Home:{
+         screen :MyApp
+       },
+       Detail:{
+         screen :DetailPage
+       }
+    },
+    {
+      initialRouteName: 'Home',
+      headerMode:'none'
+    }
+)
 
-module.exports = MyApp;
+module.exports = RootNavigator;
