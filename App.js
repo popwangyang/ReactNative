@@ -11,6 +11,7 @@ import {
 import { StackNavigator, TabBarBottom, TabNavigator, withNavigation  } from "react-navigation";
 import ScrollViewPage from './ScrollView.js';
 import DetailPage from './DetailPage.js';
+import TestPage from './TestPage.js';
 
 class ImageComponent extends React.Component {
    render () {
@@ -43,7 +44,9 @@ class Home extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <ScrollViewPage/>
+                <ScrollViewPage
+                  navigation = {this.props.navigation}
+                />
             </View>
         );
     }
@@ -143,6 +146,7 @@ const MyApp = TabNavigator(
     {
         Home: {
             screen: Home,
+
         },
         Circle: {
             screen: Circle,
@@ -181,6 +185,9 @@ const MyApp = TabNavigator(
         lazy: true,
         backBehavior: 'none',
     });
+
+
+
 const RootNavigator = StackNavigator(
     {
        Home:{
@@ -188,11 +195,15 @@ const RootNavigator = StackNavigator(
        },
        Detail:{
          screen :DetailPage
+       },
+       Test: {
+         screen: TestPage
        }
     },
     {
       initialRouteName: 'Home',
-      headerMode:'none'
+      headerMode:'none',
+      mode:'card'
     }
 )
 

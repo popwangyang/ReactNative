@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import axois from 'axios'
 import  Video from 'react-native-video'
+import { Icon } from './PublicComponent.js'
 
 const { width, height } = Dimensions.get('window');
 
@@ -121,18 +122,7 @@ class ListItem3 extends React.Component {
      }
 }
 
-class Icon extends React.Component {
-    render(){
-       return(
-         <View>
-           <Image
-            source={this.props.src}
-            style={this.props.IconStyle}
-           />
-         </View>
-       )
-    }
-}
+
 
 class Loading extends React.Component {
     state = {
@@ -447,7 +437,7 @@ export default class ScrollViewPage extends React.Component {
      goDetailPage(id){
        console.log(id)
        console.log(this.props)
-
+       this.props.navigation.navigate('Detail')
      }
      componentDidMount(){
      console.log("pppppp")
